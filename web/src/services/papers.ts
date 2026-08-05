@@ -1,4 +1,4 @@
-const HUB_ORIGIN = "http://localhost:3456";
+import { getHubOrigin } from "./hub";
 
 export interface PaperRecord {
   id: string;
@@ -47,14 +47,14 @@ export interface PaperDocument {
 
 export async function searchPapers(query: string, limit = 8): Promise<PaperSearchResponse> {
   const params = new URLSearchParams({ q: query, limit: String(limit) });
-  const response = await fetch(`${HUB_ORIGIN}/api/papers/search?${params.toString()}`, { cache: "no-store" });
+  const response = await fetch(`${getHubOrigin()}/api/papers/search?${params.toString()}`, { cache: "no-store" });
   const data = await response.json().catch(() => ({})) as Partial<PaperSearchResponse> & { error?: string };
   if (!response.ok) throw new Error(data.error ?? `HTTP ${response.status}`);
   return data as PaperSearchResponse;
 }
 
 export async function createSession(title: string): Promise<{ id: string; title: string }> {
-  const response = await fetch(`${HUB_ORIGIN}/api/sessions`, {
+  const response = await fetch(`${getHubOrigin()}/api/sessions`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ title }),
@@ -65,7 +65,7 @@ export async function createSession(title: string): Promise<{ id: string; title:
 }
 
 export async function savePaperPage(sessionId: string, paper: PaperRecord): Promise<void> {
-  const response = await fetch(`${HUB_ORIGIN}/api/papers/session-page`, {
+  const response = await fetch(`${getHubOrigin()}/api/papers/session-page`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ sessionId, paper }),
@@ -75,7 +75,7 @@ export async function savePaperPage(sessionId: string, paper: PaperRecord): Prom
 }
 
 async function postPaper<T>(path: string, body: Record<string, unknown>): Promise<T> {
-  const response = await fetch(`${HUB_ORIGIN}${path}`, {
+  const response = await fetch(`${getHubOrigin()}${path}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),

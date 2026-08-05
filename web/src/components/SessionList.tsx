@@ -3,13 +3,12 @@ import { KeyRound, Power, Trash2, Unplug } from "lucide-react";
 import { toast } from "sonner";
 import { useExamForgeStore } from "../store";
 import type { ClientEvent, SessionMeta } from "../types";
+import { getHubOrigin } from "../services/hub";
 import { formatRelativeTime } from "../utils/time";
 
 interface SessionListProps {
   sendEvent: (event: ClientEvent) => void;
 }
-
-const HUB_ORIGIN = "http://localhost:3456";
 
 function isActiveAgent(session: SessionMeta): boolean {
   return ["idle", "waiting", "working"].includes(session.agentConnection?.status ?? "");
@@ -58,7 +57,7 @@ export function SessionList({ sendEvent }: SessionListProps) {
     }
 
     try {
-      const response = await fetch(`${HUB_ORIGIN}/api/sessions/${encodeURIComponent(session.id)}/claim-code`, {
+      const response = await fetch(`${getHubOrigin()}/api/sessions/${encodeURIComponent(session.id)}/claim-code`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ force }),
@@ -81,7 +80,7 @@ export function SessionList({ sendEvent }: SessionListProps) {
     }
 
     try {
-      const response = await fetch(`${HUB_ORIGIN}/api/sessions/${encodeURIComponent(session.id)}/disconnect-agent`, {
+      const response = await fetch(`${getHubOrigin()}/api/sessions/${encodeURIComponent(session.id)}/disconnect-agent`, {
         method: "POST",
       });
       const data = (await response.json().catch(() => ({}))) as { error?: string };

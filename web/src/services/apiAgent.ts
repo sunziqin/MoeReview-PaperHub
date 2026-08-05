@@ -1,4 +1,4 @@
-const HUB_ORIGIN = "http://localhost:3456";
+import { getHubOrigin } from "./hub";
 
 export interface ApiAgentConfig {
   baseUrl: string;
@@ -26,7 +26,7 @@ async function readError(response: Response): Promise<string> {
 }
 
 export async function loadApiAgentConfig(): Promise<ApiAgentConfig> {
-  const response = await fetch(`${HUB_ORIGIN}/api/config/api-agent`, { cache: "no-store" });
+  const response = await fetch(`${getHubOrigin()}/api/config/api-agent`, { cache: "no-store" });
   if (!response.ok) throw new Error(await readError(response));
   const data = await response.json() as { config: ApiAgentConfig };
   return data.config;
@@ -39,7 +39,7 @@ export async function saveApiAgentConfig(input: {
   apiKey?: string;
   clearApiKey?: boolean;
 }): Promise<ApiAgentConfig> {
-  const response = await fetch(`${HUB_ORIGIN}/api/config/api-agent`, {
+  const response = await fetch(`${getHubOrigin()}/api/config/api-agent`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
@@ -57,7 +57,7 @@ export async function translateSegment(input: {
   keywords?: string[];
   glossary?: Array<{ chinese: string; english: string }>;
 }): Promise<TranslationResult> {
-  const response = await fetch(`${HUB_ORIGIN}/api/translate/segment`, {
+  const response = await fetch(`${getHubOrigin()}/api/translate/segment`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),

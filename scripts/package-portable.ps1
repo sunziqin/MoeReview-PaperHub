@@ -7,6 +7,9 @@ $ElectronDist = Join-Path $Desktop "node_modules\electron\dist"
 $WebDist = Join-Path $Root "web\dist"
 $HubDist = Join-Path $Root "mcp-server\dist"
 $HubModules = Join-Path $Root "mcp-server\node_modules"
+$DesktopPackage = Get-Content -Raw -LiteralPath (Join-Path $Desktop "package.json") | ConvertFrom-Json
+$Version = [string]$DesktopPackage.version
+if ([string]::IsNullOrWhiteSpace($Version)) { throw "Desktop package version is missing." }
 
 if (-not (Test-Path -LiteralPath (Join-Path $ElectronDist "electron.exe"))) { throw "Electron runtime is missing." }
 if (-not (Test-Path -LiteralPath (Join-Path $WebDist "index.html"))) { throw "Web build is missing." }
@@ -33,7 +36,7 @@ Copy-Item -LiteralPath $HubDist -Destination (Join-Path $PortableRoot "resources
 Copy-Item -LiteralPath $HubModules -Destination (Join-Path $PortableRoot "resources\mcp-server\node_modules") -Recurse -Force
 Copy-Item -LiteralPath (Join-Path $Root "mcp-server\package.json") -Destination (Join-Path $PortableRoot "resources\mcp-server\package.json") -Force
 
-$zipPath = Join-Path $Release "MoeReview-0.1.0-portable.zip"
+$zipPath = Join-Path $Release "MoeReview-$Version-portable.zip"
 if (Test-Path -LiteralPath $zipPath) { Remove-Item -LiteralPath $zipPath -Force }
 Compress-Archive -Path (Join-Path $PortableRoot "*") -DestinationPath $zipPath -CompressionLevel Optimal
 Write-Host "Portable app: $PortableRoot" -ForegroundColor Green

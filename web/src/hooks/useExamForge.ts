@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { useExamForgeStore } from "../store";
+import { getHubOrigin, getHubWebSocketUrl } from "../services/hub";
 import type { ClientEvent, ServerMessage, ToastType } from "../types";
 
-const HUB_ORIGIN = "http://localhost:3456";
-const WS_URL = "ws://localhost:3456/ws";
 const INITIAL_BACKOFF_MS = 1000;
 const MAX_BACKOFF_MS = 5000;
 
@@ -51,7 +50,7 @@ export function useExamForge() {
 
     async function fetchSessions(): Promise<void> {
       try {
-        const response = await fetch(`${HUB_ORIGIN}/api/sessions`, { cache: "no-store" });
+        const response = await fetch(`${getHubOrigin()}/api/sessions`, { cache: "no-store" });
         if (!response.ok) return;
         const data = (await response.json()) as Pick<Extract<ServerMessage, { tool: "sessions_update" }>, "sessions">;
         useExamForgeStore.getState().dispatch({
@@ -83,7 +82,7 @@ export function useExamForge() {
     function connect(): void {
       if (disposed) return;
       useExamForgeStore.getState().setConnectionStatus("connecting");
-      const ws = new WebSocket(WS_URL);
+      const ws = new WebSocket(getHubWebSocketUrl());
       wsRef.current = ws;
 
       ws.onopen = () => {
@@ -167,9 +166,9 @@ export function useExamForge() {
     async function syncSession(): Promise<void> {
       try {
         const [pagesResponse, favoritesResponse, guidanceResponse] = await Promise.all([
-          fetch(`${HUB_ORIGIN}/api/sessions/${encodeURIComponent(currentSessionId)}/pages`, { cache: "no-store" }),
-          fetch(`${HUB_ORIGIN}/api/sessions/${encodeURIComponent(currentSessionId)}/favorites`, { cache: "no-store" }),
-          fetch(`${HUB_ORIGIN}/api/sessions/${encodeURIComponent(currentSessionId)}/guidance`, { cache: "no-store" }),
+          fetch(`${getHubOrigin()}/api/sessions/${encodeURIComponent(currentSessionId)}/pages`, { cache: "no-store" }),
+          fetch(`${getHubOrigin()}/api/sessions/${encodeURIComponent(currentSessionId)}/favorites`, { cache: "no-store" }),
+          fetch(`${getHubOrigin()}/api/sessions/${encodeURIComponent(currentSessionId)}/guidance`, { cache: "no-store" }),
         ]);
         if (disposed) return;
         if (pagesResponse.ok) {

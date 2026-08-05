@@ -69,6 +69,8 @@ export function DiscoverPage(props: PageProps) {
   const [loading, setLoading] = useState(true);
   const [diagnostics, setDiagnostics] = useState<string[]>([]);
   const [selected, setSelected] = useState<string[]>(preferences.interests);
+  const [onboardingBusy, setOnboardingBusy] = useState(false);
+  const [onboardingError, setOnboardingError] = useState("");
   const interestKey = preferences.interests.join("|");
   const channelRef = useRef(channel);
   const cursorRef = useRef(0);
@@ -154,14 +156,28 @@ export function DiscoverPage(props: PageProps) {
     timer = window.setTimeout(() => { void run(); }, 600);
     return () => { disposed = true; window.clearTimeout(timer); };
   }, [loading, preferences.interests, preferences.onboardingComplete, prefetchFeed]);
-  const finishOnboarding = async () => { const next = await savePreferences({ interests: selected, onboardingComplete: true }); onPreferences(next); };
+  const finishOnboarding = async (skip = false) => {
+    if (onboardingBusy) return;
+    setOnboardingBusy(true);
+    setOnboardingError("");
+    try {
+      const next = await savePreferences({ interests: skip ? [] : selected, onboardingComplete: true });
+      onPreferences(next);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "保存失败，请重试。";
+      setOnboardingError(message);
+      toast.error(message);
+    } finally {
+      setOnboardingBusy(false);
+    }
+  };
   return <main className="research-page discover-page">
     <header className="discover-head"><div><span className="page-kicker">PERSONAL PAPER FEED</span><h1>发现值得读的论文</h1><p>从开放论文中筛选与你兴趣相关的新工作。</p></div><form onSubmit={(e) => { e.preventDefault(); const value = new FormData(e.currentTarget).get("q"); if (value) navigate(`/search?q=${encodeURIComponent(String(value))}`); }}><Search size={18} /><input name="q" placeholder="搜索主题、作者或关键词" /><button>搜索</button></form></header>
     <div className="channel-tabs">{CHANNELS.map((item) => <button type="button" key={item.id} className={channel === item.id ? "active" : ""} onClick={() => setChannel(item.id)} onPointerEnter={() => prefetchFeed(item.id)} onFocus={() => prefetchFeed(item.id)}>{item.label}</button>)}{preferences.interests.slice(0, 3).map((interest) => <button type="button" key={interest} className={channel === `interest:${interest}` ? "active" : ""} onClick={() => setChannel(`interest:${interest}`)} onPointerEnter={() => prefetchFeed(`interest:${interest}`)} onFocus={() => prefetchFeed(`interest:${interest}`)}>{interest}</button>)}</div>
     {diagnostics.length > 0 && <div className="feed-diagnostics">{diagnostics.join(" · ")}</div>}
     {loading && items.length === 0 ? <FeedSkeleton /> : items.length === 0 ? <EmptyState title="暂时没有匹配的论文" text="换个频道或在设置中调整兴趣。" /> : <div className="paper-feed-grid">{items.map((item, index) => <PaperCard key={item.paper.id} item={item} featured={index === 0} navigate={navigate} onRemoved={() => setItems((old) => old.filter((entry) => entry.paper.id !== item.paper.id))} />)}</div>}
     {items.length > 0 && <button type="button" className="load-more" onClick={() => void fetchFeed(false)} disabled={loading}>{loading ? "加载中" : "加载更多"}</button>}
-    {!preferences.onboardingComplete && <div className="onboarding-overlay"><section className="onboarding-panel"><span className="page-kicker">WELCOME TO MOEREVIEW</span><h2>先选几个感兴趣的方向</h2><p>推荐记录只保存在这台电脑上，之后可在设置中关闭或清除。</p><div className="interest-grid">{INTERESTS.map((interest) => <button type="button" className={selected.includes(interest) ? "active" : ""} key={interest} onClick={() => setSelected((old) => old.includes(interest) ? old.filter((item) => item !== interest) : [...old, interest].slice(0, 8))}>{selected.includes(interest) && <Check size={14} />}{interest}</button>)}</div><div className="onboarding-actions"><button type="button" onClick={() => void savePreferences({ onboardingComplete: true }).then(onPreferences)}>跳过</button><button type="button" className="primary" onClick={() => void finishOnboarding()}>开始发现</button></div></section></div>}
+    {!preferences.onboardingComplete && <div className="onboarding-overlay"><section className="onboarding-panel"><span className="page-kicker">WELCOME TO MOEREVIEW</span><h2>先选几个感兴趣的方向</h2><p>推荐记录只保存在这台电脑上，之后可在设置中关闭或清除。</p><div className="interest-grid">{INTERESTS.map((interest) => <button type="button" className={selected.includes(interest) ? "active" : ""} key={interest} disabled={onboardingBusy} onClick={() => setSelected((old) => old.includes(interest) ? old.filter((item) => item !== interest) : [...old, interest].slice(0, 8))}>{selected.includes(interest) && <Check size={14} />}{interest}</button>)}</div>{onboardingError && <p className="onboarding-error" role="alert">{onboardingError}</p>}<div className="onboarding-actions"><button type="button" disabled={onboardingBusy} onClick={() => void finishOnboarding(true)}>跳过</button><button type="button" className="primary" disabled={onboardingBusy} onClick={() => void finishOnboarding()}>{onboardingBusy ? "保存中..." : onboardingError ? "重试" : "开始发现"}</button></div></section></div>}
   </main>;
 }
 

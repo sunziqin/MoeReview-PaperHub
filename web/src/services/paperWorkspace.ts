@@ -1,9 +1,8 @@
 import type { PaperDocument, PaperRecord, PaperSection } from "./papers";
-
-const HUB = "http://localhost:3456";
+import { getHubOrigin } from "./hub";
 
 export function paperPdfUrl(id: string): string {
-  return `${HUB}/api/papers/${encodeURIComponent(id)}/pdf`;
+  return `${getHubOrigin()}/api/papers/${encodeURIComponent(id)}/pdf`;
 }
 
 export interface AppPreferences {
@@ -121,10 +120,21 @@ export interface PaperTranslationJob {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${HUB}${path}`, { cache: "no-store", ...init });
-  const data = await response.json().catch(() => ({})) as T & { error?: string };
-  if (!response.ok) throw new Error(data.error ?? `HTTP ${response.status}`);
-  return data;
+  const controller = new AbortController();
+  const timeout = globalThis.setTimeout(() => controller.abort(), 15_000);
+  try {
+    const response = await fetch(`${getHubOrigin()}${path}`, { cache: "no-store", ...init, signal: init?.signal ?? controller.signal });
+    const data = await response.json().catch(() => ({})) as T & { error?: string };
+    if (!response.ok) throw new Error(data.error ?? `HTTP ${response.status}`);
+    return data;
+  } catch (error) {
+    if (error instanceof TypeError || (error instanceof DOMException && error.name === "AbortError")) {
+      throw new Error("无法连接 MoeReview Hub，请重启应用后重试。", { cause: error });
+    }
+    throw error;
+  } finally {
+    globalThis.clearTimeout(timeout);
+  }
 }
 
 function json(method: string, body?: unknown): RequestInit {

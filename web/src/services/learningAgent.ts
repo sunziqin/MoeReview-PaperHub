@@ -1,4 +1,4 @@
-const HUB_ORIGIN = "http://localhost:3456";
+import { getHubOrigin } from "./hub";
 
 export type LearningIntent = "overview" | "chapter" | "cards" | "quiz-choice" | "quiz-short" | "ask";
 
@@ -16,7 +16,7 @@ export async function runLearningTurn(input: {
   selectedSectionId?: string;
   selectedSectionTitle?: string;
 }): Promise<void> {
-  const response = await fetch(`${HUB_ORIGIN}/api/learning/sessions/${encodeURIComponent(input.sessionId)}/turn`, {
+  const response = await fetch(`${getHubOrigin()}/api/learning/sessions/${encodeURIComponent(input.sessionId)}/turn`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),

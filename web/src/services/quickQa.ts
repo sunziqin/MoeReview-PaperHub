@@ -6,9 +6,8 @@
  */
 
 import { loadApiAgentConfig, saveApiAgentConfig, type ApiAgentConfig } from "./apiAgent";
+import { getHubOrigin } from "./hub";
 import type { QuickQaConfig } from "../types";
-
-const HUB_ORIGIN = "http://localhost:3456";
 
 export const DEFAULT_QUICK_QA_CONFIG: QuickQaConfig = {
   baseUrl: "https://api.deepseek.com/v1",
@@ -53,7 +52,7 @@ export function isQuickQaConfigured(config: QuickQaConfig): boolean {
 }
 
 export async function testQuickQaConnection(): Promise<void> {
-  const response = await fetch(`${HUB_ORIGIN}/api/config/api-agent/test`, { method: "POST" });
+  const response = await fetch(`${getHubOrigin()}/api/config/api-agent/test`, { method: "POST" });
   if (response.ok) return;
   const data = await response.json().catch(() => ({})) as { error?: string };
   throw new Error(data.error ?? `HTTP ${response.status}`);
@@ -68,7 +67,7 @@ export async function* streamChat(
   messages: ChatMessage[],
   signal?: AbortSignal,
 ): AsyncGenerator<string, void, unknown> {
-  const response = await fetch(`${HUB_ORIGIN}/api/ai-agent/chat`, {
+  const response = await fetch(`${getHubOrigin()}/api/ai-agent/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ messages }),
