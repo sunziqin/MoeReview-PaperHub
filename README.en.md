@@ -17,6 +17,17 @@
 
 MoeReview is a local Windows paper platform that connects discovery, readable Chinese explanations, source-grounded reading, and optional active study in one workflow.
 
+<p align="center">
+  <video controls preload="metadata" width="720" src="https://github.com/sunziqin/MoeReview-PaperHub/releases/latest/download/moereview-product-intro.mp4">
+    <a href="https://github.com/sunziqin/MoeReview-PaperHub/releases/latest/download/moereview-product-intro.mp4">Watch the product introduction video (MP4)</a>
+  </video>
+</p>
+
+<p align="center">
+  <a href="https://github.com/sunziqin/MoeReview-PaperHub/releases/latest/download/moereview-product-intro.mp4">Download the product video</a> ·
+  <a href="https://github.com/sunziqin/MoeReview-PaperHub/releases/latest">View the latest Release</a>
+</p>
+
 ## Features
 
 - Personalized paper feed with interest channels, latest work, LLM, computer vision, reinforcement learning, and explainable local ranking.
@@ -38,6 +49,8 @@ Download the latest release assets:
 - `MoeReview-<version>-x64.exe`: installer.
 - `MoeReview-<version>-portable.exe`: portable build.
 - `moereview-product-intro.mp4`: product introduction video.
+
+The product video is also available for [online playback](https://github.com/sunziqin/MoeReview-PaperHub/releases/latest/download/moereview-product-intro.mp4).
 
 The desktop app starts the local Hub and opens the discovery feed. Configure the OpenAI-compatible Base URL, model, and API Key in Settings on first use.
 

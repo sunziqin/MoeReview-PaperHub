@@ -17,6 +17,17 @@
 
 MoeReview 是一个运行在本机上的论文发现与阅读平台。它把“刷到论文、看懂论文、深入学习”组织成一条连续流程：发现页负责推荐，详情页负责沉浸式阅读，学习页负责解析和练习。
 
+<p align="center">
+  <video controls preload="metadata" width="720" src="https://github.com/sunziqin/MoeReview-PaperHub/releases/latest/download/moereview-product-intro.mp4">
+    <a href="https://github.com/sunziqin/MoeReview-PaperHub/releases/latest/download/moereview-product-intro.mp4">观看项目介绍视频（MP4）</a>
+  </video>
+</p>
+
+<p align="center">
+  <a href="https://github.com/sunziqin/MoeReview-PaperHub/releases/latest/download/moereview-product-intro.mp4">下载项目介绍视频</a> ·
+  <a href="https://github.com/sunziqin/MoeReview-PaperHub/releases/latest">查看最新 Release</a>
+</p>
+
 ## 功能
 
 - 个性化论文发现流：支持兴趣频道、最新论文、LLM、计算机视觉、强化学习和本地行为排序。
@@ -142,7 +153,7 @@ git diff --check
 
 ## 介绍视频
 
-项目介绍视频随 GitHub Release 一起提供，文件名为 `moereview-product-intro.mp4`。视频不放入源码仓库，避免让 clone 和源码审查承受不必要的二进制体积。
+项目介绍视频已放在 [GitHub Release](https://github.com/sunziqin/MoeReview-PaperHub/releases/latest) 中，可直接[在线播放](https://github.com/sunziqin/MoeReview-PaperHub/releases/latest/download/moereview-product-intro.mp4)或下载。视频不放入源码仓库，避免让 clone 和源码审查承受不必要的二进制体积。
 
 ## 许可证
 
