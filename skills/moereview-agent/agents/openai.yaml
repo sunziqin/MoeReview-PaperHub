@@ -1,0 +1,4 @@
+interface:
+  display_name: "MoeReview Agent"
+  short_description: "Create structured learning experiences in MoeReview."
+  default_prompt: "Use $moereview-agent to route this study task through MoeReview and present the material with the clearest appropriate Markdown, semantic blocks, formulas, diagrams, or interactive previews."

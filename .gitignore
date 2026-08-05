@@ -1,0 +1,55 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+release/
+dist-ssr/
+.vite/
+*.tsbuildinfo
+coverage/
+
+# Logs and local runtime artifacts
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+stdout.txt
+stderr.txt
+in.txt
+
+# Local uploads / scratch files
+.uploads/
+.tmp/
+tmp/
+temp/
+
+# Local env files
+*.local
+.env
+.env.*
+
+# Local agent / IDE workspace files
+.agents/
+.trae/
+.codex/
+.claude/
+.cursor/
+skills-lock.json
+
+# Local MoeReview runtime data, if someone points it into the repo
+.examforge/
+
+# Editor / OS files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

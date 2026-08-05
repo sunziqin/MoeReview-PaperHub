@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="zh-CN" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="node_modules/gsap/dist/gsap.min.js"></script>
+    <style>
+      * { box-sizing: border-box; }
+      html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #0b1220; }
+      body { font-family: "Microsoft YaHei", "Segoe UI", Arial, sans-serif; color: #f5f1e8; }
+      @font-face { font-family: "Microsoft YaHei"; src: local("Microsoft YaHei"); }
+      @font-face { font-family: "Cascadia Mono"; src: local("Cascadia Mono"); }
+      button { font: inherit; }
+      .frame-fill { position: absolute; inset: 0; background: #0b1220; }
+      .frame-fill::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 72% 18%, rgba(121, 224, 194, .17), transparent 36%), radial-gradient(circle at 22% 85%, rgba(255, 150, 125, .1), transparent 32%); }
+      .frame-fill::after { content: ""; position: absolute; inset: 0; opacity: .18; background-image: linear-gradient(rgba(245, 241, 232, .06) 1px, transparent 1px), linear-gradient(90deg, rgba(245, 241, 232, .06) 1px, transparent 1px); background-size: 72px 72px; mask-image: linear-gradient(to bottom, black, transparent 92%); }
+      .scene { position: absolute; inset: 0; overflow: hidden; padding: 72px 96px; }
+      .scene-shell { position: relative; width: 100%; height: 100%; }
+      .mono { font-family: "Cascadia Mono", Consolas, monospace; letter-spacing: 1px; }
+      .eyebrow { display: block; color: #79e0c2; font-size: 20px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; }
+      .muted { color: rgba(245, 241, 232, .78); }
+      .quiet { color: rgba(245, 241, 232, .62); }
+      h1, h2, h3, p { margin: 0; }
+      h1 { font-size: 92px; line-height: 1.08; letter-spacing: 0; font-weight: 800; }
+      h2 { font-size: 58px; line-height: 1.15; letter-spacing: 0; font-weight: 800; }
+      h3 { font-size: 28px; line-height: 1.25; letter-spacing: 0; }
+      .body-copy { font-size: 30px; line-height: 1.65; }
+      .fine { font-size: 19px; line-height: 1.5; }
+      .accent { color: #79e0c2; }
+      .coral { color: #ff967d; }
+      .paper { color: #f5f1e8; }
+      .line { height: 3px; background: #79e0c2; transform-origin: left center; }
+      .scene-number { position: absolute; right: 0; top: 0; color: rgba(245, 241, 232, .68); font-size: 22px; }
+      .ambient-ring { position: absolute; width: 540px; height: 540px; border: 2px solid rgba(121, 224, 194, .18); border-radius: 50%; right: 110px; top: 70px; }
+      .ambient-ring::after { content: ""; position: absolute; width: 14px; height: 14px; border-radius: 50%; background: #79e0c2; right: 25px; top: 70px; box-shadow: 0 0 28px #79e0c2; }
+      .ghost-word { position: absolute; color: #587687; opacity: .9; font-size: 142px; font-weight: 900; white-space: nowrap; }
+
+      .hook-copy { position: absolute; left: 0; top: 154px; width: 940px; }
+      .hook-copy p { margin-top: 34px; width: 720px; }
+      .hook-mark { position: absolute; right: 82px; top: 142px; width: 420px; height: 420px; border: 2px solid rgba(121, 224, 194, .5); border-radius: 50%; display: grid; place-items: center; }
+      .hook-mark::before, .hook-mark::after { content: ""; position: absolute; border: 1px solid rgba(121, 224, 194, .32); border-radius: 50%; }
+      .hook-mark::before { inset: 48px; }
+      .hook-mark::after { inset: 118px; border-color: rgba(255, 150, 125, .35); }
+      .hook-letter { position: relative; font-size: 210px; font-weight: 900; color: #79e0c2; line-height: 1; }
+      .hook-meta { position: absolute; left: 0; bottom: 30px; display: flex; gap: 20px; align-items: center; font-size: 18px; }
+      .hook-meta span { padding: 10px 14px; border: 1px solid rgba(245, 241, 232, .2); border-radius: 99px; }
+
+      .product-window { position: absolute; left: 0; right: 0; top: 124px; bottom: 20px; border: 1px solid rgba(245, 241, 232, .2); border-radius: 24px; background: #101a2a; box-shadow: 0 30px 80px rgba(0, 0, 0, .35); overflow: hidden; }
+      .window-bar { height: 68px; display: flex; align-items: center; padding: 0 28px; border-bottom: 1px solid rgba(245, 241, 232, .12); background: #132033; }
+      .window-dots { display: flex; gap: 9px; margin-right: 26px; }
+      .window-dots i { width: 10px; height: 10px; border-radius: 50%; background: rgba(245, 241, 232, .26); }
+      .window-dots i:first-child { background: #ff967d; }
+      .window-title { font-size: 20px; font-weight: 700; }
+      .window-search { margin-left: auto; width: 430px; height: 36px; display: flex; align-items: center; padding: 0 16px; border: 1px solid rgba(245, 241, 232, .18); border-radius: 8px; color: rgba(245, 241, 232, .4); font-size: 16px; }
+      .window-body { height: calc(100% - 68px); display: grid; grid-template-columns: 214px 1fr; }
+      .app-side { border-right: 1px solid rgba(245, 241, 232, .11); padding: 28px 20px; background: #0e1726; }
+      .side-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 36px; font-weight: 800; font-size: 21px; }
+      .side-brand b { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; background: #79e0c2; color: #0b1220; }
+      .side-item { display: flex; align-items: center; gap: 12px; height: 48px; padding: 0 12px; margin: 6px 0; color: rgba(245, 241, 232, .56); font-size: 18px; }
+      .side-item.active { color: #f5f1e8; border-left: 3px solid #79e0c2; background: rgba(121, 224, 194, .1); }
+      .side-dot { width: 14px; height: 14px; border: 2px solid currentColor; border-radius: 50%; }
+      .feed-area { padding: 42px 44px; }
+      .feed-header { display: flex; justify-content: space-between; align-items: end; }
+      .feed-header h2 { font-size: 42px; margin-top: 12px; }
+      .feed-header p { font-size: 18px; margin-top: 10px; }
+      .feed-tabs { display: flex; gap: 12px; align-items: center; }
+      .feed-tabs span { padding: 10px 16px; border-radius: 99px; color: rgba(245, 241, 232, .58); font-size: 16px; }
+      .feed-tabs .selected { background: #79e0c2; color: #0b1220; font-weight: 700; }
+      .feed-grid { display: grid; grid-template-columns: 1.35fr 1fr 1fr; gap: 18px; margin-top: 30px; }
+      .paper-card { min-height: 302px; border: 1px solid rgba(245, 241, 232, .14); background: #162235; border-radius: 16px; padding: 26px; display: flex; flex-direction: column; }
+      .paper-card.feature { min-height: 366px; background: #1a2b3e; border-color: rgba(121, 224, 194, .5); }
+      .card-top { display: flex; justify-content: space-between; align-items: center; font-size: 15px; }
+      .tag { color: #79e0c2; padding: 7px 10px; border: 1px solid rgba(121, 224, 194, .4); border-radius: 6px; }
+      .bookmark { width: 20px; height: 24px; border: 2px solid rgba(245, 241, 232, .48); border-bottom: 0; position: relative; }
+      .bookmark::after { content: ""; position: absolute; width: 12px; height: 12px; left: 2px; bottom: -6px; border-right: 2px solid rgba(245, 241, 232, .48); border-bottom: 2px solid rgba(245, 241, 232, .48); transform: rotate(45deg); background: #162235; }
+      .paper-card h3 { margin-top: 24px; font-size: 27px; line-height: 1.35; }
+      .paper-card.feature h3 { font-size: 34px; }
+      .paper-card p { margin-top: 15px; font-size: 17px; line-height: 1.55; color: rgba(245, 241, 232, .64); }
+      .card-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 24px; color: rgba(245, 241, 232, .45); font-size: 15px; }
+      .reason { color: #ff967d; }
+
+      .detail-window { position: absolute; left: 0; right: 0; top: 134px; bottom: 22px; display: grid; grid-template-columns: 1fr 344px; gap: 18px; }
+      .detail-main, .detail-rail { border: 1px solid rgba(245, 241, 232, .16); border-radius: 18px; background: #101a2a; }
+      .detail-main { padding: 38px 46px; }
+      .detail-main h2 { width: 830px; font-size: 42px; margin-top: 14px; }
+      .detail-main .original { margin-top: 14px; color: #d6d3ca; font-size: 18px; }
+      .detail-actions { display: flex; gap: 10px; margin-top: 25px; }
+      .action { padding: 12px 18px; border: 1px solid rgba(245, 241, 232, .18); border-radius: 8px; color: #f5f1e8; font-size: 16px; }
+      .action.primary { background: #79e0c2; border-color: #79e0c2; color: #0b1220; font-weight: 800; }
+      .summary-panel { margin-top: 28px; padding: 24px; border: 1px solid rgba(121, 224, 194, .38); border-radius: 12px; background: rgba(121, 224, 194, .08); }
+      .summary-title { display: flex; justify-content: space-between; align-items: center; }
+      .summary-title strong { font-size: 20px; }
+      .summary-title span { color: #79e0c2; font-size: 16px; }
+      .summary-panel > p { margin-top: 18px; font-size: 25px; line-height: 1.55; }
+      .summary-list { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 24px; margin-top: 22px; }
+      .summary-list div { padding-left: 14px; border-left: 2px solid #79e0c2; }
+      .summary-list b { display: block; color: #79e0c2; font-size: 15px; }
+      .summary-list span { display: block; margin-top: 6px; font-size: 18px; color: rgba(245, 241, 232, .74); line-height: 1.45; }
+      .keyword { color: #ff967d; font-weight: 700; }
+      .detail-rail { padding: 26px; }
+      .rail-title { color: #79e0c2; font-size: 16px; letter-spacing: 2px; }
+      .rail-data { margin-top: 22px; padding-bottom: 22px; border-bottom: 1px solid rgba(245, 241, 232, .12); }
+      .rail-data h3 { font-size: 24px; }
+      .rail-data p { margin-top: 11px; color: rgba(245, 241, 232, .58); font-size: 17px; line-height: 1.5; }
+      .rail-next { margin-top: 24px; padding: 18px; border-radius: 12px; background: rgba(255, 150, 125, .1); border: 1px solid rgba(255, 150, 125, .3); }
+      .rail-next strong { display: block; color: #ff967d; font-size: 17px; }
+      .rail-next p { margin-top: 8px; font-size: 18px; line-height: 1.45; }
+
+      .reading-stage { position: absolute; left: 0; right: 0; top: 120px; bottom: 12px; }
+      .reader-head { display: flex; align-items: end; justify-content: space-between; }
+      .reader-head h2 { margin-top: 12px; font-size: 46px; }
+      .reader-head p { margin-top: 10px; color: #d6d3ca; font-size: 19px; }
+      .reader-modes { display: flex; gap: 8px; }
+      .reader-modes span { padding: 13px 18px; border: 1px solid rgba(245, 241, 232, .16); border-radius: 8px; font-size: 17px; }
+      .reader-modes .active { color: #0b1220; background: #79e0c2; border-color: #79e0c2; font-weight: 800; }
+      .reader-grid { display: grid; grid-template-columns: 1.06fr .94fr; gap: 20px; height: 610px; margin-top: 28px; }
+      .reading-pane { border: 1px solid rgba(245, 241, 232, .16); border-radius: 16px; background: #f5f1e8; color: #192234; padding: 34px 42px; overflow: hidden; }
+      .reading-pane.source { background: #142237; color: #f5f1e8; }
+      .reading-pane header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid rgba(25, 34, 52, .14); padding-bottom: 18px; }
+      .source header { border-color: rgba(245, 241, 232, .14); }
+      .reading-pane header span { font-family: "Cascadia Mono", Consolas, monospace; font-size: 14px; opacity: .64; }
+      .reading-pane header b { font-size: 21px; }
+      .reading-pane article { margin-top: 25px; font-size: 23px; line-height: 1.8; }
+      .reading-pane article p + p { margin-top: 18px; }
+      .term { color: #0c8a78; font-weight: 800; }
+      .source .term { color: #79e0c2; }
+      .chart-card { position: absolute; right: 48px; bottom: 42px; width: 326px; height: 188px; padding: 18px; border: 1px solid rgba(245, 241, 232, .16); border-radius: 12px; background: #0f1928; }
+      .chart-card p { font-size: 15px; color: rgba(245, 241, 232, .58); }
+      .chart-bars { display: flex; align-items: end; gap: 15px; height: 104px; margin-top: 8px; padding: 0 16px; border-bottom: 1px solid rgba(245, 241, 232, .26); }
+      .chart-bars i { width: 28px; display: block; background: #79e0c2; border-radius: 4px 4px 0 0; }
+      .chart-bars i:nth-child(1) { height: 35px; opacity: .46; }
+      .chart-bars i:nth-child(2) { height: 53px; opacity: .66; }
+      .chart-bars i:nth-child(3) { height: 76px; opacity: .82; }
+      .chart-bars i:nth-child(4) { height: 95px; }
+      .fact-label { position: absolute; right: 36px; top: 334px; padding: 10px 14px; border: 1px solid rgba(255, 150, 125, .42); border-radius: 7px; background: rgba(255, 150, 125, .1); color: #ff967d; font-size: 15px; }
+      .progress-strip { position: absolute; left: 0; bottom: -2px; width: 100%; height: 6px; background: rgba(245, 241, 232, .11); }
+      .progress-strip i { display: block; width: 42%; height: 100%; background: #79e0c2; }
+
+      .learn-stage { position: absolute; left: 0; right: 0; top: 132px; bottom: 20px; }
+      .learn-left { position: absolute; left: 0; top: 0; width: 770px; }
+      .learn-left h2 { margin-top: 14px; font-size: 50px; }
+      .learn-left p { margin-top: 18px; width: 610px; color: #d6d3ca; font-size: 25px; line-height: 1.6; }
+      .paper-identity { display: flex; align-items: center; gap: 14px; margin-top: 34px; padding-top: 20px; border-top: 1px solid rgba(245, 241, 232, .18); font-size: 20px; }
+      .paper-identity b { width: 42px; height: 42px; display: grid; place-items: center; background: #79e0c2; color: #0b1220; border-radius: 10px; }
+      .learn-panel { position: absolute; right: 0; top: 0; width: 740px; height: 620px; padding: 30px; border: 1px solid rgba(121, 224, 194, .4); border-radius: 20px; background: #111d2e; box-shadow: 0 30px 80px rgba(0, 0, 0, .28); }
+      .learn-panel header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid rgba(245, 241, 232, .13); }
+      .learn-panel header strong { font-size: 23px; }
+      .session-chip { color: #79e0c2; font-family: "Cascadia Mono", Consolas, monospace; font-size: 14px; }
+      .learn-tools { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 22px; }
+      .learn-tool { padding: 22px; border-radius: 12px; background: #18283c; border: 1px solid rgba(245, 241, 232, .12); }
+      .learn-tool b { display: block; font-size: 22px; }
+      .learn-tool p { margin-top: 8px; font-size: 16px; line-height: 1.5; color: rgba(245, 241, 232, .58); }
+      .learn-tool.highlight { background: rgba(121, 224, 194, .12); border-color: rgba(121, 224, 194, .48); }
+      .learn-progress { margin-top: 24px; padding: 18px; border-radius: 10px; background: rgba(255, 150, 125, .09); }
+      .learn-progress header { border: 0; padding: 0; }
+      .learn-progress header span { color: #ff967d; font-size: 16px; }
+      .learn-progress i { display: block; height: 8px; margin-top: 14px; border-radius: 99px; background: linear-gradient(90deg, #ff967d 0 62%, rgba(255, 150, 125, .18) 62%); }
+
+      .settings-stage { position: absolute; left: 0; right: 0; top: 128px; bottom: 16px; }
+      .settings-copy { position: absolute; left: 0; top: 34px; width: 650px; }
+      .settings-copy h2 { margin-top: 16px; font-size: 54px; }
+      .settings-copy p { margin-top: 22px; font-size: 25px; line-height: 1.7; color: rgba(245, 241, 232, .68); }
+      .settings-window { position: absolute; right: 0; top: 0; width: 810px; height: 650px; padding: 30px; border: 1px solid rgba(245, 241, 232, .16); border-radius: 18px; background: #101a2a; }
+      .settings-window > header { display: flex; justify-content: space-between; align-items: end; padding-bottom: 18px; border-bottom: 1px solid rgba(245, 241, 232, .14); }
+      .settings-window h3 { font-size: 30px; }
+      .settings-window header span { color: #79e0c2; font-family: "Cascadia Mono", Consolas, monospace; font-size: 14px; }
+      .setting-group { margin-top: 22px; }
+      .setting-group > header { display: flex; justify-content: space-between; align-items: center; }
+      .setting-group > header strong { font-size: 19px; }
+      .setting-group > header span { color: rgba(245, 241, 232, .45); font-size: 14px; }
+      .tier-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 13px; }
+      .tier { padding: 13px 8px; text-align: center; color: rgba(245, 241, 232, .55); border: 1px solid rgba(245, 241, 232, .14); border-radius: 7px; font-size: 15px; }
+      .tier.active { background: #79e0c2; border-color: #79e0c2; color: #0b1220; font-weight: 800; }
+      .setting-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+      .setting-field { padding: 16px; border: 1px solid rgba(245, 241, 232, .12); border-radius: 8px; background: #162235; }
+      .setting-field small { display: block; color: rgba(245, 241, 232, .46); font-size: 14px; }
+      .setting-field b { display: block; margin-top: 8px; font-size: 18px; }
+      .setting-field .value { color: #79e0c2; }
+      .prompt-field { margin-top: 14px; padding: 15px 17px; border: 1px solid rgba(255, 150, 125, .26); border-radius: 8px; background: rgba(255, 150, 125, .08); }
+      .prompt-field small { color: #ff967d; font-size: 14px; }
+      .prompt-field p { margin-top: 7px; color: rgba(245, 241, 232, .68); font-size: 15px; line-height: 1.45; }
+      .settings-foot { display: flex; gap: 10px; margin-top: 22px; }
+      .preset { flex: 1; padding: 10px; text-align: center; border: 1px solid rgba(245, 241, 232, .15); border-radius: 7px; color: rgba(245, 241, 232, .56); font-size: 14px; }
+      .preset.active { border-color: #79e0c2; color: #79e0c2; }
+
+      .outro { display: grid; place-items: center; text-align: center; }
+      .outro-content { position: relative; z-index: 2; }
+      .outro-mark { width: 124px; height: 124px; display: grid; place-items: center; margin: 0 auto 30px; border: 2px solid #79e0c2; border-radius: 36px; color: #79e0c2; font-size: 72px; font-weight: 900; box-shadow: 0 0 50px rgba(121, 224, 194, .2); }
+      .outro h2 { font-size: 76px; }
+      .outro p { margin-top: 22px; color: rgba(245, 241, 232, .64); font-size: 28px; }
+      .outro-chips { display: flex; justify-content: center; gap: 12px; margin-top: 38px; }
+      .outro-chips span { padding: 12px 18px; border: 1px solid rgba(245, 241, 232, .2); border-radius: 99px; color: rgba(245, 241, 232, .75); font-size: 17px; }
+      .outro-chips span:first-child { border-color: rgba(121, 224, 194, .5); color: #79e0c2; }
+      .outro-meta { position: absolute; bottom: 38px; left: 0; right: 0; display: flex; justify-content: space-between; color: rgba(245, 241, 232, .65); font-size: 16px; }
+
+      @media (max-width: 1000px) { html, body { width: 1920px; height: 1080px; } }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="60" data-width="1920" data-height="1080">
+      <div class="frame-fill" id="promo-background"></div>
+
+      <section id="scene-hook" class="clip scene" data-start="0" data-duration="6" data-track-index="1">
+        <div class="scene-shell">
+          <span class="eyebrow mono">MOEREVIEW / PAPER DISCOVERY</span>
+          <div class="hook-copy" id="hook-copy">
+            <h1>论文很多，<span class="accent">读懂</span>很难。</h1>
+            <p class="body-copy muted">从发现，到中文理解，再到真正学会，一条顺畅的阅读路径。</p>
+          </div>
+          <div class="hook-mark" id="hook-mark"><span class="hook-letter">M</span></div>
+          <div class="hook-meta mono" id="hook-meta"><span>LOCAL-FIRST</span><span>READ IN CHINESE</span><span>LEARN WHEN READY</span></div>
+          <span class="ghost-word" style="right:10px; bottom:-38px">READABLE</span>
+        </div>
+      </section>
+
+      <section id="scene-discover" class="clip scene" data-start="6" data-duration="9" data-track-index="2">
+        <div class="scene-shell">
+          <div class="scene-number mono">01 / DISCOVER</div>
+          <div class="product-window" id="discover-window">
+            <div class="window-bar"><div class="window-dots"><i></i><i></i><i></i></div><div class="window-title">MoeReview</div><div class="window-search">搜索主题、作者或关键词</div></div>
+            <div class="window-body">
+              <aside class="app-side"><div class="side-brand"><b>M</b><span>MoeReview</span></div><div class="side-item active"><i class="side-dot"></i><span>发现</span></div><div class="side-item"><i class="side-dot"></i><span>搜索</span></div><div class="side-item"><i class="side-dot"></i><span>收藏</span></div><div class="side-item"><i class="side-dot"></i><span>学习</span></div><div class="side-item"><i class="side-dot"></i><span>历史</span></div></aside>
+              <main class="feed-area"><div class="feed-header"><div><span class="eyebrow mono">PERSONAL PAPER FEED</span><h2>发现值得读的论文</h2><p class="muted">根据你的兴趣，挑选今天值得打开的研究。</p></div><div class="feed-tabs"><span class="selected">为你推荐</span><span>最新论文</span><span>大语言模型</span></div></div><div class="feed-grid" id="feed-grid"><article class="paper-card feature"><div class="card-top"><span class="tag">RAG / 2025</span><i class="bookmark"></i></div><h3>让检索增强生成更稳定的上下文选择方法</h3><p>先用一句中文预览判断：这篇论文是否值得投入时间。</p><div class="card-bottom"><span class="reason">与你收藏的 RAG 论文相关</span><span>查看详情 →</span></div></article><article class="paper-card"><div class="card-top"><span class="tag">AI AGENT</span><i class="bookmark"></i></div><h3>面向长任务的 Agent 记忆</h3><p>方法、结果和局限都被压缩成可扫描的信息。</p><div class="card-bottom"><span>arXiv</span><span>一键摘要</span></div></article><article class="paper-card"><div class="card-top"><span class="tag">VISION</span><i class="bookmark"></i></div><h3>视觉提示的可解释性研究</h3><p>不用打开十个标签页，就能先挑出下一篇。</p><div class="card-bottom"><span>Semantic Scholar</span><span>收藏</span></div></article></div></main>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-detail" class="clip scene" data-start="15" data-duration="9" data-track-index="3">
+        <div class="scene-shell">
+          <div class="scene-number mono">02 / UNDERSTAND</div>
+          <div class="detail-window" id="detail-window">
+            <main class="detail-main"><span class="eyebrow mono">AI SUMMARY / PLAIN LANGUAGE</span><h2>让论文先用大白话告诉你：它到底做了什么。</h2><p class="original">Context Selection for More Reliable Retrieval-Augmented Generation</p><div class="detail-actions"><span class="action primary">开始学习</span><span class="action">收藏</span><span class="action">稍后阅读</span></div><section class="summary-panel" id="summary-panel"><div class="summary-title"><strong>中文概括</strong><span class="mono">MODEL GENERATED</span></div><p>这项工作解决的是：检索到的资料太多时，模型容易被无关内容带偏。作者让系统先挑出最有用的上下文，再生成答案。</p><div class="summary-list"><div><b>研究问题</b><span>哪些资料真正值得交给模型？</span></div><div><b>方法</b><span>用一个选择器给检索结果排序。</span></div><div><b>主要发现</b><span>少而相关的上下文，答案更稳定。</span></div><div><b>术语保留</b><span><span class="keyword">检索增强生成（RAG）</span></span></div></div></section></main>
+            <aside class="detail-rail"><span class="rail-title mono">PAPER INFO</span><div class="rail-data"><h3>论文信息</h3><p>作者、年份、来源、DOI / arXiv 都保留在详情页。</p></div><div class="rail-data"><h3>一键动作</h3><p>中文摘要、翻译原文、收藏和继续阅读。</p></div><div class="rail-next"><strong>下一步</strong><p>想深入，再进入解析、问答与做题。</p></div></aside>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-reading" class="clip scene" data-start="24" data-duration="10" data-track-index="4">
+        <div class="scene-shell">
+          <div class="scene-number mono">03 / READ DEEPLY</div>
+          <div class="reading-stage"><div class="reader-head"><div><span class="eyebrow mono">FULL TEXT READING</span><h2>中文优先，原文随时核对。</h2><p class="muted">双语阅读保留关键术语，也保留论文的事实来源。</p></div><div class="reader-modes"><span>论文原文</span><span class="active">中文阅读</span><span>双语对照</span></div></div><div class="reader-grid" id="reader-grid"><article class="reading-pane"><header><b>中文理解</b><span>CHINESE READING</span></header><article><p>当检索系统把很多片段交给模型时，<span class="term">上下文选择（Context Selection）</span>会先判断哪些信息真的有用。</p><p>这样做的目标不是让模型读得更多，而是让它少被无关信息打断，从而给出更稳定的答案。</p><p>中文阅读负责把意思讲清楚，数字和术语保留原样，方便继续追踪。</p></article></article><article class="reading-pane source"><header><b>Original PDF</b><span>VISUAL SOURCE OF TRUTH</span></header><article><p>The selector ranks retrieved passages before the generator sees them.</p><p>Figures, tables, equations and page layout remain available in the original PDF.</p><p class="quiet">原版 PDF 保留图表、表格、公式和版式。</p></article><div class="chart-card" id="chart-card"><p class="mono">ANSWER STABILITY ↑</p><div class="chart-bars"><i></i><i></i><i></i><i></i></div></div><span class="fact-label mono">FIGURES / TABLES / EQUATIONS</span></article></div><div class="progress-strip"><i id="reading-progress"></i></div></div>
+        </div>
+      </section>
+
+      <section id="scene-learning" class="clip scene" data-start="34" data-duration="10" data-track-index="5">
+        <div class="scene-shell">
+          <div class="scene-number mono">04 / LEARN WHEN READY</div>
+          <div class="learn-stage"><div class="learn-left"><span class="eyebrow mono">OPTIONAL DEEP LEARNING</span><h2>读到关键处，再开始学习。</h2><p class="muted">学习不是另一个孤立入口，而是和当前论文绑定的下一步。</p><div class="paper-identity"><b>M</b><span><strong>Context Selection for RAG</strong><small class="muted"> · paper session · source anchored</small></span></div></div><section class="learn-panel" id="learn-panel"><header><strong>论文学习空间</strong><span class="session-chip">SESSION / PAPER-2025-014</span></header><div class="learn-tools"><div class="learn-tool highlight"><b>整体解析</b><p>先建立背景、问题、方法和结论的全局地图。</p></div><div class="learn-tool"><b>选中文本提问</b><p>围绕当前段落追问，回答带来源锚点。</p></div><div class="learn-tool"><b>术语表</b><p>中文解释和 English keyword 一起保存。</p></div><div class="learn-tool"><b>知识卡片与做题</b><p>把读过的内容变成可复习、可检验的知识。</p></div></div><div class="learn-progress"><header><span>学习进度</span><span class="muted">62%</span></header><i></i></div></section></div>
+        </div>
+      </section>
+
+      <section id="scene-settings" class="clip scene" data-start="44" data-duration="10" data-track-index="6">
+        <div class="scene-shell">
+          <div class="scene-number mono">05 / YOUR WORKSPACE</div>
+          <div class="settings-stage"><div class="settings-copy"><span class="eyebrow mono">ONE SETTINGS CENTER</span><h2>复杂配置，收口到一个地方。</h2><p>统一管理 AI 服务、论文来源、推荐、阅读、外观和翻译任务。Hub 管理密钥，Web UI 只拿到配置状态。</p></div><section class="settings-window" id="settings-window"><header><h3>设置</h3><span>APP PREFERENCES</span></header><div class="setting-group"><header><strong>翻译档位</strong><span>按需到自动批量</span></header><div class="tier-row"><span class="tier">低 · 按需</span><span class="tier">中 · 当前论文</span><span class="tier">高 · 后台批量</span><span class="tier active">最高 · 全部本地论文</span></div></div><div class="setting-grid"><div class="setting-field"><small>最大并发数量</small><b class="value">8 / 16</b></div><div class="setting-field"><small>默认阅读语言</small><b class="value">中文阅读</b></div><div class="setting-field"><small>翻译范围</small><b>本机已发现论文</b></div><div class="setting-field"><small>API Agent</small><b class="value">已配置 · Hub</b></div></div><div class="prompt-field"><small>自定义翻译提示词</small><p>忠实翻译，用中文讲清楚；保留数字、公式、模型名和中文术语（English keyword）。</p></div><div class="settings-foot"><span class="preset active">简约</span><span class="preset">深色</span><span class="preset">二次元</span><span class="preset">渐变</span></div></section></div>
+        </div>
+      </section>
+
+      <section id="scene-outro" class="clip scene outro" data-start="54" data-duration="6" data-track-index="7">
+        <div class="scene-shell"><div class="outro-content" id="outro-content"><div class="outro-mark">M</div><span class="eyebrow mono">MOEREVIEW</span><h2>发现论文，读懂论文，学会论文。</h2><p>让中文阅读成为进入研究世界的第一步。</p><div class="outro-chips"><span>本地优先</span><span>中文沉浸阅读</span><span>可选深度学习</span></div></div><div class="outro-meta mono"><span>ARXIV + SEMANTIC SCHOLAR</span><span>READ / SAVE / LEARN</span></div></div>
+      </section>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      const sceneIn = (id, time, distance = 28) => {
+        tl.fromTo(id, { opacity: 0, y: distance }, { opacity: 1, y: 0, duration: .55, ease: "power3.out" }, time);
+      };
+
+      tl.to("#promo-background", { x: 24, duration: 60, ease: "none" }, 0);
+      tl.to("#hook-mark", { rotation: 24, duration: 4.5, ease: "none" }, 1.5);
+      tl.to("#hook-mark", { scale: 1.06, duration: 1.8, yoyo: true, repeat: 1, ease: "sine.inOut" }, 1.6);
+      sceneIn("#scene-hook", 0, 18);
+      tl.fromTo("#hook-copy", { opacity: 0, x: -70 }, { opacity: 1, x: 0, duration: .75, ease: "power4.out" }, .25);
+      tl.fromTo("#hook-mark", { opacity: 0, scale: .72, rotation: -18 }, { opacity: 1, scale: 1, rotation: 0, duration: .9, ease: "back.out(1.6)" }, .45);
+      tl.fromTo("#hook-meta", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: .5, ease: "power2.out" }, 1.35);
+
+      sceneIn("#scene-discover", 6, 22);
+      tl.fromTo("#discover-window", { opacity: 0, scale: .9, y: 38 }, { opacity: 1, scale: 1, y: 0, duration: .8, ease: "power3.out" }, 6.2);
+      tl.fromTo("#feed-grid", { opacity: 0, x: 46 }, { opacity: 1, x: 0, duration: .65, ease: "power3.out" }, 7);
+      tl.fromTo("#feed-grid .paper-card", { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: .5, stagger: .14, ease: "power2.out" }, 7.35);
+      tl.to("#discover-window .feed-tabs .selected", { backgroundColor: "#ff967d", color: "#0b1220", duration: .35 }, 11.5);
+      tl.to("#discover-window .feed-tabs .selected", { backgroundColor: "#79e0c2", color: "#0b1220", duration: .35 }, 12.4);
+
+      sceneIn("#scene-detail", 15, 24);
+      tl.fromTo("#detail-window", { opacity: 0, x: 60 }, { opacity: 1, x: 0, duration: .7, ease: "power3.out" }, 15.15);
+      tl.fromTo("#summary-panel", { opacity: 0, y: 34, scale: .97 }, { opacity: 1, y: 0, scale: 1, duration: .7, ease: "power3.out" }, 16.05);
+      tl.fromTo("#summary-panel .summary-list div", { opacity: 0, x: -18 }, { opacity: 1, x: 0, duration: .38, stagger: .12, ease: "power2.out" }, 16.75);
+      tl.to("#summary-panel .keyword", { color: "#79e0c2", duration: .4, yoyo: true, repeat: 1, ease: "sine.inOut" }, 19.2);
+
+      sceneIn("#scene-reading", 24, 22);
+      tl.fromTo(".reading-stage", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: .7, ease: "power3.out" }, 24.15);
+      tl.fromTo("#reader-grid .reading-pane", { opacity: 0, y: 42 }, { opacity: 1, y: 0, duration: .6, stagger: .18, ease: "power3.out" }, 25);
+      tl.fromTo("#chart-card", { opacity: 0, scale: .82, rotation: -4 }, { opacity: 1, scale: 1, rotation: 0, duration: .65, ease: "back.out(1.3)" }, 26.2);
+      tl.fromTo("#reading-progress", { scaleX: 0 }, { scaleX: 1, duration: 7.2, ease: "power1.inOut" }, 25.2);
+      tl.fromTo("#reader-grid .term", { color: "#192234" }, { color: "#0c8a78", duration: .35 }, 28.3);
+
+      sceneIn("#scene-learning", 34, 20);
+      tl.fromTo(".learn-left", { opacity: 0, x: -52 }, { opacity: 1, x: 0, duration: .7, ease: "power3.out" }, 34.2);
+      tl.fromTo("#learn-panel", { opacity: 0, x: 68, scale: .96 }, { opacity: 1, x: 0, scale: 1, duration: .8, ease: "power3.out" }, 34.35);
+      tl.fromTo("#learn-panel .learn-tool", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: .45, stagger: .13, ease: "power2.out" }, 35.2);
+      tl.fromTo(".learn-progress i", { scaleX: .1 }, { scaleX: 1, duration: 5.4, ease: "power1.inOut" }, 36.2);
+
+      sceneIn("#scene-settings", 44, 24);
+      tl.fromTo(".settings-copy", { opacity: 0, x: -46 }, { opacity: 1, x: 0, duration: .65, ease: "power3.out" }, 44.2);
+      tl.fromTo("#settings-window", { opacity: 0, x: 72, scale: .95 }, { opacity: 1, x: 0, scale: 1, duration: .75, ease: "power3.out" }, 44.35);
+      tl.fromTo("#settings-window .tier", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: .4, stagger: .12, ease: "power2.out" }, 45.1);
+      tl.fromTo("#settings-window .setting-field", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: .4, stagger: .1, ease: "power2.out" }, 45.65);
+      tl.to("#settings-window .tier.active", { scale: 1.06, duration: .35, yoyo: true, repeat: 1, ease: "sine.inOut" }, 49.2);
+      tl.to("#settings-window .preset.active", { color: "#ff967d", borderColor: "#ff967d", duration: .35, yoyo: true, repeat: 1, ease: "sine.inOut" }, 51);
+
+      sceneIn("#scene-outro", 54, 12);
+      tl.fromTo("#outro-content", { opacity: 0, scale: .86 }, { opacity: 1, scale: 1, duration: .9, ease: "back.out(1.25)" }, 54.15);
+      tl.fromTo("#scene-outro .outro-chips span", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .42, stagger: .12, ease: "power2.out" }, 55.2);
+      tl.to("#scene-outro .outro-mark", { rotation: 8, duration: .5, yoyo: true, repeat: 1, ease: "sine.inOut" }, 57);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

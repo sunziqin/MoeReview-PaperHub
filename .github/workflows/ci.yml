@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            web/package-lock.json
+            mcp-server/package-lock.json
+      - name: Install web dependencies
+        run: npm.cmd --prefix web ci
+      - name: Install Hub dependencies
+        run: npm.cmd --prefix mcp-server ci
+      - name: Build Hub
+        run: npm.cmd --prefix mcp-server run build
+      - name: Build web
+        run: npm.cmd --prefix web run build
+      - name: Lint web
+        run: npm.cmd --prefix web run lint
+      - name: Check whitespace
+        shell: pwsh
+        run: git diff --check

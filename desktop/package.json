@@ -1,0 +1,67 @@
+{
+  "name": "moereview-desktop",
+  "version": "0.1.0",
+  "description": "MoeReview Windows desktop application",
+  "private": true,
+  "license": "GPL-3.0-only",
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "package": "electron-builder --win nsis portable --x64",
+    "package:dir": "electron-builder --dir --win --x64",
+    "package:portable": "powershell -NoProfile -ExecutionPolicy Bypass -File ..\\scripts\\package-portable.ps1"
+  },
+  "devDependencies": {
+    "electron": "^37.2.6",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.moereview.desktop",
+    "productName": "MoeReview",
+    "artifactName": "MoeReview-${version}-${arch}.${ext}",
+    "asar": true,
+    "files": [
+      "main.cjs"
+    ],
+    "extraResources": [
+      {
+        "from": "../web/dist",
+        "to": "web/dist",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../mcp-server/dist",
+        "to": "mcp-server/dist",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../mcp-server/node_modules",
+        "to": "mcp-server/node_modules",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../mcp-server/package.json",
+        "to": "mcp-server/package.json"
+      }
+    ],
+    "directories": {
+      "output": "../release"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "MoeReview"
+    },
+    "portable": {
+      "artifactName": "MoeReview-${version}-portable.${ext}"
+    }
+  }
+}

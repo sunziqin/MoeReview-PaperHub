@@ -1,0 +1,16 @@
+{
+  "name": "moereview-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "license": "GPL-3.0-only",
+  "scripts": {
+    "setup": "npm.cmd --prefix web ci && npm.cmd --prefix mcp-server ci && npm.cmd --prefix desktop install",
+    "build": "npm.cmd --prefix web run build && npm.cmd --prefix mcp-server run build",
+    "build:desktop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/package-windows.ps1",
+    "package:desktop": "npm.cmd run build:desktop",
+    "check": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check.ps1",
+    "release:check": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release-check.ps1",
+    "start": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start.ps1",
+    "start:no-open": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start.ps1 -NoOpen"
+  }
+}
